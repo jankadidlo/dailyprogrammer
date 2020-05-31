@@ -1,3 +1,4 @@
+# https://www.reddit.com/r/dailyprogrammer/comments/ffxabb/20200309_challenge_383_easy_necklace_matching/
 def check_sameness(nck1, nck2):
     counter = 0
 
