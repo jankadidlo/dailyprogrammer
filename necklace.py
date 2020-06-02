@@ -2,13 +2,20 @@ import urllib
 import urllib.request
 
 
-# https://www.reddit.com/r/dailyprogrammer/comments/ffxabb/20200309_challenge_383_easy_necklace_matching/ modified to make it an "app" to be usable for other data sources
-def rearrange_necklace(nck1, y=0):
+# https://www.reddit.com/r/dailyprogrammer/comments/ffxabb/20200309_challenge_383_easy_necklace_matching/ modified to make it an "app" to be usable for other purposes
+def rearrange_necklace(nck1, switch):
     # move all indices in string one step lower
-    out = ""
+    out = []
     for i in range(len(nck1)):
-        out = out + nck1[y - 1]
-        y = y + 1
+        nck_temp = ""
+        y = 0
+        for i in range(len(nck1)):
+            nck_temp = nck_temp + nck1[y - 1]
+            y += 1
+        out.append(nck_temp)
+        nck1 = nck_temp
+        if switch == 0:
+            return nck_temp
     return out
 
 
@@ -18,7 +25,7 @@ def count_repeatings(nck1):
     for i in range(len(nck1)):
         if check == nck1:
             out += 1
-        nck1 = rearrange_necklace(nck1)
+        nck1 = rearrange_necklace(nck1, 0)
     return out
 
 
@@ -34,13 +41,8 @@ def check_length(nck1, nck2):
 def check_sameness(nck1, nck2):
     if not check_length(nck1, nck2):
         return 0
-    out = 0
-    for i in range(len(nck1)):
-        if nck1 == nck2:
-            out = 1
-            return out
-        nck2 = rearrange_necklace(nck2)
-    return out
+    nck1 = rearrange_necklace(nck1, 1)
+    return nck2 in nck1
 
 
 # find the same necklaces from link
@@ -53,27 +55,22 @@ def find_repeatings(link, smnum=1):
     except:
         raise Exception("Connection failed, please check your link.")
 
-    # this part finds repeating necklaces, skips any already found repeating and prints out necklaces that repeat smnum or more amount of times
-    i_cursor = 0
     found = []
+    i_cursor = 0
     for i in decoded:
-        repeats = 0
-        current_check = []
-        try:
-            i != decoded[-1]
-        except:
-            return 1
-        if not i in found:
-            cursor = i_cursor + 1
-            current_check.append(i)
-            while decoded[cursor] != decoded[-1]:
-                if check_sameness(i, decoded[cursor]) == 1:
-                    found.append(decoded[cursor])
+        #print(i)
+        repeatings = 0
+        current_check = [i]
+        cursor = i_cursor + 1
+        rearranged = rearrange_necklace(i, 1)
+        if i != decoded[-1] and i not in found:
+            while decoded[cursor-1] != decoded[-1]:
+                if decoded[cursor] in rearranged:
                     current_check.append(decoded[cursor])
-                    repeats += 1
+                    found.append(decoded[cursor])
+                    repeatings += 1
                 cursor += 1
-        # after each check print out the repeating necklaces if there are more than or equal to the number we are looking for
-        if repeats >= smnum:
+        if smnum <= repeatings:
             print(current_check)
         i_cursor += 1
 
@@ -98,11 +95,11 @@ elif option == "2":
 
 # for testing use link: "https://raw.githubusercontent.com/dolph/dictionary/master/enable1.txt"
 elif option == "3":
-    print("Please link to the data:")
-    link = input()
-    print("Enter repeating necklace threshold:")
-    smnum = int(input())
-    find_repeatings(link, smnum)
+   print("Please enter the link to the data:")
+   link = input()
+   print("Enter repeating necklace threshold:")
+   smnum = int(input())
+   find_repeatings(link, smnum)
 
 else:
     print("Wrong imput. Shutting down.")
