@@ -56,23 +56,17 @@ def find_repeatings(link, smnum=1):
         raise Exception("Connection failed, please check your link.")
 
     found = []
-    i_cursor = 0
     for i in decoded:
-        #print(i)
-        repeatings = 0
-        current_check = [i]
-        cursor = i_cursor + 1
-        rearranged = rearrange_necklace(i, 1)
-        if i != decoded[-1] and i not in found:
-            while decoded[cursor-1] != decoded[-1]:
-                if decoded[cursor] in rearranged:
-                    current_check.append(decoded[cursor])
-                    found.append(decoded[cursor])
+        if i not in found:
+            repeatings = 0
+            current_sesh = [i]
+            for ii in rearrange_necklace(i, 1):
+                if ii in decoded and ii != i:
                     repeatings += 1
-                cursor += 1
-        if smnum <= repeatings:
-            print(current_check)
-        i_cursor += 1
+                    found.append(ii)
+                    current_sesh.append(ii)
+            if repeatings >= smnum:
+                print(current_sesh)
 
     return 1
 
